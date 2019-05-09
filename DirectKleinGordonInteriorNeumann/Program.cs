@@ -11,38 +11,14 @@ namespace DirectKleinGordonInteriorNeumann
         static double[] yStar = { -2, 4 };
         static double alpha = Math.Exp(-10);
         const int k = 2;
-        static double x1(double t)
-        {
-            return 3*Math.Cos(t);
-        }
-        static double x2(double t)
-        {
-            return Math.Sin(t)+ Math.Cos(t);
-        }
-        static double x1d(double t)
-        {
-            return -3*Math.Sin(t);
-        }
-        static double x2d(double t)
-        {
-            return Math.Cos(t) - Math.Sin(t);
-        }
-        static double x1dd(double t)
-        {
-            return -3*Math.Cos(t);
-        }
-        static double x2dd(double t)
-        {
-            return -Math.Sin(t)-Math.Cos(t);
-        }
-        static double diffModule(double t, double tau)
-        {
-            return Math.Sqrt((x1(t) - x1(tau)) * (x1(t) - x1(tau)) + (x2(t) - x2(tau)) * (x2(t) - x2(tau)));
-        }
-        static double derModule(double t)
-        {
-            return Math.Sqrt(x1d(t) * x1d(t) + x2d(t) * x2d(t));
-        }
+        static double x1(double t) => 3*Math.Cos(t);
+        static double x2(double t)=> Math.Sin(t)+ Math.Cos(t);
+        static double x1d(double t)=> -3*Math.Sin(t);
+        static double x2d(double t)=> Math.Cos(t) - Math.Sin(t);      
+        static double x1dd(double t) => -3*Math.Cos(t);   
+        static double x2dd(double t)=> -Math.Sin(t)-Math.Cos(t);      
+        static double diffModule(double t, double tau)=> Math.Sqrt((x1(t) - x1(tau)) * (x1(t) - x1(tau)) + (x2(t) - x2(tau)) * (x2(t) - x2(tau)));
+        static double derModule(double t)=> Math.Sqrt(x1d(t) * x1d(t) + x2d(t) * x2d(t));
 
         static double h(double t, double tau)
         {
@@ -50,20 +26,12 @@ namespace DirectKleinGordonInteriorNeumann
             double denominator = diffModule(t, tau);
             return numerator / denominator;
         }
-        static double L(double t, double tau)
-        {
-            return -2 * k * alglib.besselk1(k * diffModule(t, tau)) * h(t, tau);
-        }
+        static double L(double t, double tau)=> -2 * k * alglib.besselk1(k * diffModule(t, tau)) * h(t, tau);
+  
         static double L1(double t, double tau)
         {
-            if (t != tau)
-            {
-                return -k * alglib.besseli1(k * diffModule(t, tau)) * h(t, tau);
-            }
-            else
-            {
-                return 0;
-            }
+            if (t != tau) return -k * alglib.besseli1(k * diffModule(t, tau)) * h(t, tau);
+            return 0;
         }
 
         static double L2(double t, double tau)
@@ -79,21 +47,14 @@ namespace DirectKleinGordonInteriorNeumann
                 return numerator / denominator;
             }
         }
-        static double D(double t, double tau)
-        {
-            return 2*alglib.besselk0(k * diffModule(t, tau)) * derModule(tau);
-        } 
-
+        static double D(double t, double tau)=>  2*alglib.besselk0(k * diffModule(t, tau)) * derModule(tau);
         static double D1(double t, double tau)
         {
             if (t != tau)
             {
                 return -alglib.besseli0(k * diffModule(t, tau)) * derModule(tau) ;
             }
-            else
-            {
-                return -derModule(t);
-            }
+            return -derModule(t);
         }
 
         static double D2(double t, double tau)
@@ -102,10 +63,7 @@ namespace DirectKleinGordonInteriorNeumann
             {
                 return D(t, tau) - D1(t, tau) * Math.Log(4 * Math.Sin((t - tau) / 2) * Math.Sin((t - tau) / 2));
             }
-            else
-            {
-                return 2*derModule(t) * (Math.Log(2 / (k * derModule(t)))  - EulerConst);
-            }
+            return 2*derModule(t) * (Math.Log(2 / (k * derModule(t)))  - EulerConst);
         }
         static double R(int j, double t, int n, double[] ti)
         {
@@ -117,18 +75,10 @@ namespace DirectKleinGordonInteriorNeumann
             sum = sum + Math.Cos(n * (t - ti[j])) / (2 * n);
             return -sum / n;
         }
-        static double exact(double[] x)
-        {
-            return alglib.besselk0(k * module(x, yStar)) / (2 * Math.PI);
-        }
-        static double module(double[] x, double[] y)
-        {
-            return Math.Sqrt((x[0] - y[0]) * (x[0] - y[0]) + (x[1] - y[1]) * (x[1] - y[1]));
-        }
-        static double g(double t)
-        {
-            return -k * alglib.besselk1(k * module(new double[] { x1(t), x2(t) }, yStar)) * ((x1(t) - yStar[0]) * x2d(t) - (x2(t) - yStar[1]) * x1d(t)) / (2 * Math.PI * derModule(t) * module(new double[] { x1(t), x2(t) }, yStar));
-        }
+        static double exact(double[] x)=> alglib.besselk0(k * module(x, yStar)) / (2 * Math.PI);
+        static double module(double[] x, double[] y)=> Math.Sqrt((x[0] - y[0]) * (x[0] - y[0]) + (x[1] - y[1]) * (x[1] - y[1]));
+        static double g(double t) => -k * alglib.besselk1(k * module(new double[] { x1(t), x2(t) }, yStar)) * ((x1(t) - yStar[0]) * x2d(t) - (x2(t) - yStar[1]) * x1d(t)) / (2 * Math.PI * derModule(t) * module(new double[] { x1(t), x2(t) }, yStar));
+        
 
         static double G(int i,double [] ti,int n)
         {
@@ -168,10 +118,8 @@ namespace DirectKleinGordonInteriorNeumann
             for (int k = 1; k <= 7; k++)
             {
                 double[] ti = new double[2 * n];
-                for (int i = 0; i < 2 * n; i++)
-                {
-                    ti[i] = Math.PI * i / n;
-                }
+                for (int i = 0; i < 2 * n; i++) ti[i] = Math.PI * i / n;
+                
 
                 double[,] Matrix = new double[2 * n, 2 * n];
                 double[,] Matrix2 = new double[2 * n, 2 * n];
@@ -180,10 +128,7 @@ namespace DirectKleinGordonInteriorNeumann
                     for (int j = 0; j < 2 * n; j++)
                     {
                         Matrix[i, j] = R(j, ti[i], n, ti) * L1(ti[i], ti[j]) + L2(ti[i], ti[j]) / (2 * n);
-                        if (i == j)
-                        {
-                            Matrix[i, j] = Matrix[i, j] + 1;
-                        }
+                        if (i == j) Matrix[i, j] = Matrix[i, j] + 1;
                     }
                 }
                 double[] rightPart = new double[2 * n];
@@ -197,10 +142,6 @@ namespace DirectKleinGordonInteriorNeumann
                 Matrix = MatrixHelper.PlusMinis(Matrix, MatrixHelper.MatrixIdentity(2 * n, alpha), 1);
                 librarygauss executor = new librarygauss();
                 var density = executor.gauss(Matrix, rightPart);
-                for (int i = 0; i < density.Length; i++)
-                {
-                    //Console.WriteLine(density[i]);
-                }
                 Console.WriteLine("n = " + n + "    error = " + Math.Abs(numericalSolution(testPoint, n, density, ti) - exact(testPoint)));
                 n = n * 2;
                 
