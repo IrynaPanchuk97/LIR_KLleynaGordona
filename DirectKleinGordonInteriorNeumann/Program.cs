@@ -9,6 +9,7 @@ namespace DirectKleinGordonInteriorNeumann
     class Program
     {
         static double[] yStar = { -2, 4 };
+        static double alpha = Math.Exp(-10);
         const int k = 2;
         static double x1(double t)
         {
@@ -81,7 +82,7 @@ namespace DirectKleinGordonInteriorNeumann
         static double D(double t, double tau)
         {
             return 2*alglib.besselk0(k * diffModule(t, tau)) * derModule(tau);
-        }
+        } 
 
         static double D1(double t, double tau)
         {
@@ -159,6 +160,7 @@ namespace DirectKleinGordonInteriorNeumann
             return Un;
         }
         const double EulerConst = 0.5772156649;
+        
         static void Main(string[] args)
         {
             double[] testPoint = { 0,0};
@@ -172,6 +174,7 @@ namespace DirectKleinGordonInteriorNeumann
                 }
 
                 double[,] Matrix = new double[2 * n, 2 * n];
+                double[,] Matrix2 = new double[2 * n, 2 * n];
                 for (int i = 0; i < 2 * n; i++)
                 {
                     for (int j = 0; j < 2 * n; j++)
@@ -183,13 +186,15 @@ namespace DirectKleinGordonInteriorNeumann
                         }
                     }
                 }
-
                 double[] rightPart = new double[2 * n];
                 for (int i = 0; i < 2 * n; i++)
                 {
                     rightPart[i] = G(i,ti,n);
                 }
+                rightPart = MatrixHelper.MatrixVector2(MatrixHelper.MatrixTranspose(Matrix), rightPart);
 
+                Matrix = MatrixHelper.Multiplication(MatrixHelper.MatrixTranspose(Matrix), Matrix);
+                Matrix = MatrixHelper.PlusMinis(Matrix, MatrixHelper.MatrixIdentity(2 * n, alpha), 1);
                 librarygauss executor = new librarygauss();
                 var density = executor.gauss(Matrix, rightPart);
                 for (int i = 0; i < density.Length; i++)
